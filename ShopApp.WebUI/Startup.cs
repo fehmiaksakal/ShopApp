@@ -11,7 +11,8 @@ using Microsoft.Extensions.Hosting;
 using ShopApp.Business.Abstract;
 using ShopApp.Business.Concrete;
 using ShopApp.DataAccess.Abstract;
-using ShopApp.DataAccess.Concrete.Memory;
+using ShopApp.DataAccess.Concrete.EfCore;
+using ShopApp.WebUI.Middlewares;
 
 namespace ShopApp.WebUI
 {
@@ -21,10 +22,15 @@ namespace ShopApp.WebUI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IProductDal, MemoryProductDal>();
-            services.AddScoped<IProductService, ProductManager>();
+            //search Gzip minimization
 
-            services.AddMvc(options=>options.EnableEndpointRouting = false)
+            services.AddTransient<IProductDal, EfCoreProductDal>(); // Search AddTransient ,Scoped diff.
+            services.AddTransient<IProductService, ProductManager>();
+
+            services.AddTransient<ICategoryDal, EfCoreCategoryDal>();
+            services.AddTransient<ICategoryService, CategoryManager>();
+
+            services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
         }
 
@@ -34,22 +40,28 @@ namespace ShopApp.WebUI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                SeedDatabase.Seed();
             }
 
             //app.UseMvcWithDefaultRoute();
             //app.UseRouting();
-            app.UseMvc();
-            app.UseMvcWithDefaultRoute();
 
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapGet("/", async context =>
-            //    {
-            //        await context.Response.WriteAsync("Hello World!");
-            //    });
-            //});
+            app.UseStaticFiles();
+            app.CustomStaticFiles();
 
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "products",
+                    template: "products/{category?}",
+                    defaults: new { controller = "Shop", action = "List" }
+                    );
 
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}"
+                    );
+            });
         }
     }
 }
