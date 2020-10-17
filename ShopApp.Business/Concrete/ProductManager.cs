@@ -35,6 +35,11 @@ namespace ShopApp.Business.Concrete
             return _productDal.GetByıd(Id);
         }
 
+        public Product GetByIdWithCategories(int Id)
+        {
+            return _productDal.GetByIdWithCategories(Id);
+        }
+
         public int GetCountByCategory(string category)
         {
             return _productDal.GetCountByCategory(category);
@@ -42,7 +47,7 @@ namespace ShopApp.Business.Concrete
 
         public List<Product> GetPopularProducts()
         {
-            return _productDal.GetAll(x=>x.Name.Contains("sa")).ToList();
+            return _productDal.GetAll(x => x.Name.Contains("sa")).ToList();
         }
 
         public Product GetProductDetails(int Id)
@@ -58,6 +63,11 @@ namespace ShopApp.Business.Concrete
         public void Update(Product entity)
         {
             _productDal.Update(entity);
+        }
+
+        public void UpdateWithCategories(Product entity, string[] catArray)
+        {
+            _productDal.UpdateWithCategories(entity, catArray);
         }
     }
 }
