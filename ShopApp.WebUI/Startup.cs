@@ -80,6 +80,8 @@ namespace ShopApp.WebUI
             services.AddTransient<ICategoryDal, EfCoreCategoryDal>();
             services.AddTransient<ICategoryService, CategoryManager>();
 
+            services.AddTransient<ICartDal, EfCoreCartDal>();
+            services.AddTransient<ICartService, CartManager>();
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
@@ -113,6 +115,12 @@ namespace ShopApp.WebUI
                     name: "adminProductsa",
                     template: "admin/products/{id?}",
                     defaults: new { controller = "Admin", action = "EditProduct" }
+                );
+
+                routes.MapRoute(
+                  name: "cart",
+                  template: "cart",
+                  defaults: new { controller = "Cart", action = "Index" }
                 );
 
                 routes.MapRoute(

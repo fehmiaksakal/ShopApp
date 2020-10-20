@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Concrete\Memory\**" />
+    <EmbeddedResource Remove="Concrete\Memory\**" />
+    <None Remove="Concrete\Memory\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.9">
       <PrivateAssets>all</PrivateAssets>
@@ -15,10 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ShopApp.Entities\ShopApp.Entities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Concrete\Memory\" />
   </ItemGroup>
 
 </Project>

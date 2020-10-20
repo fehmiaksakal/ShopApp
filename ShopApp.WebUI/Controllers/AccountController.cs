@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ShopApp.Business.Abstract;
 using ShopApp.WebUI.Extensions;
 using ShopApp.WebUI.Identity;
 using ShopApp.WebUI.Models;
@@ -16,13 +17,15 @@ namespace ShopApp.WebUI.Controllers
     {
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
+        private ICartService _cartService;
         //private IEmailSender _emailSender;
 
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ICartService cartService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _cartService = cartService;
             //_emailSender = emailSender;
         }
 
@@ -68,6 +71,8 @@ namespace ShopApp.WebUI.Controllers
                     Message = "Hesabınız oluşturuldu!",
                     Css = CssClasses.success
                 });
+
+                _cartService.InitializeCart(user.Id);
 
                 return RedirectToAction("Login", "Account");
             }
