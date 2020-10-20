@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using ShopApp.Business.Abstract;
 using ShopApp.Entities;
 using ShopApp.WebUI.Models;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShopApp.WebUI.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class AdminController : Controller
     {
         private IProductService _productService;
@@ -26,23 +31,33 @@ namespace ShopApp.WebUI.Controllers
         [HttpGet]
         public IActionResult CreateProduct()
         {
-            return View();
+            return View(new ProductModel());
         }
 
         [HttpPost]
         public IActionResult CreateProduct(ProductModel model)
         {
-            var entity = new Product()
+            if (ModelState.IsValid)
             {
-                Name = model.Name,
-                Description = model.Description,
-                ImageUrl = model.ImageUrl,
-                Price = model.Price
-            };
+                var entity = new Product()
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    ImageUrl = model.ImageUrl,
+                    Price = model.Price.Value
+                };
 
-            _productService.Create(entity);
+                if (_productService.Create(entity))
+                {
+                    return RedirectToAction("ProductList");
+                }
 
-            return RedirectToAction("ProductList");
+                ViewBag.ErrorMessage = _productService.ErrorMessage;
+
+                return View(model);
+            }
+
+            return View(model);
         }
 
         [HttpGet]
@@ -67,20 +82,40 @@ namespace ShopApp.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditProduct(ProductModel model)
+        public async Task<IActionResult> EditProduct(ProductModel model, IFormFile file)
         {
-            var entity = _productService.GetById(model.Id);
 
-            if (entity == null) return NotFound();
+            if (ModelState.IsValid)
+            {
+                var entity = _productService.GetById(model.Id);
 
-            entity.Name = model.Name;
-            entity.Description = model.Description;
-            entity.ImageUrl = model.ImageUrl;
-            entity.Price = model.Price;
+                if (entity == null) return NotFound();
 
-            _productService.UpdateWithCategories(entity, model.CategoryIds);
+                entity.Name = model.Name;
+                entity.Description = model.Description;
+                entity.ImageUrl = model.ImageUrl;
+                entity.Price = model.Price.Value;
 
-            return RedirectToAction("ProductList");
+                if (file != null)
+                {
+                    entity.ImageUrl = file.FileName;
+
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\img", file.FileName);
+                    using (var stream = new FileStream(path,FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                }
+
+                _productService.UpdateWithCategories(entity, model.CategoryIds);
+
+                return RedirectToAction("ProductList");
+            }
+            else
+            {
+                return View(model);
+            }
+
         }
 
 
