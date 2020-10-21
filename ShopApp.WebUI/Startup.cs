@@ -83,6 +83,9 @@ namespace ShopApp.WebUI
             services.AddTransient<ICartDal, EfCoreCartDal>();
             services.AddTransient<ICartService, CartManager>();
 
+            services.AddTransient<IOrderDal, EfCoreOrderDal>();
+            services.AddTransient<IOrderService, OrderManager>();
+
             services.AddMvc(options => options.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
         }
@@ -122,6 +125,18 @@ namespace ShopApp.WebUI
                   template: "cart",
                   defaults: new { controller = "Cart", action = "Index" }
                 );
+
+                routes.MapRoute(
+                     name: "checkout",
+                     template: "checkout",
+                     defaults: new { controller = "Cart", action = "Checkout" }
+                 );
+
+                routes.MapRoute(
+                     name: "orders",
+                     template: "orders",
+                     defaults: new { controller = "Cart", action = "GetOrders" }
+                 );
 
                 routes.MapRoute(
                   name: "products",

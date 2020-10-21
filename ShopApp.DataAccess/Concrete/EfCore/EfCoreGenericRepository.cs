@@ -17,7 +17,16 @@ namespace ShopApp.DataAccess.Concrete.EfCore
             using (var context = new TContext())
             {
                 context.Set<TEntity>().Add(entity);
-                context.SaveChanges();
+                try
+                {
+                    context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+              
             }
         }
 
